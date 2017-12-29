@@ -35,7 +35,7 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     ChatMessage chatMessage = new ChatMessage(
         messageText: text,
         animationController: new AnimationController(
-            duration: new Duration(milliseconds: 700),
+            duration: new Duration(milliseconds: 100),
             vsync: this
         )
     );
