@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'chat.dart';
+import 'chatMessage.dart';
 
 class ChatScreenState extends State<ChatScreen> {
+  final List<ChatMessage> _messages = <ChatMessage>[];
   final TextEditingController _textController = new TextEditingController();
 
   Widget _buildTextComposer() {
@@ -12,7 +14,7 @@ class ChatScreenState extends State<ChatScreen> {
           new Flexible(
               child: new TextField(
                   controller: _textController,
-                  onSubmitted: _handleSubmitted,
+                  onSubmitted: _handleMessageSubmitted,
                   decoration: new InputDecoration.collapsed(
                       hintText: "Send a message")
               )
@@ -21,15 +23,21 @@ class ChatScreenState extends State<ChatScreen> {
             margin: new EdgeInsets.symmetric(horizontal: 4.0),
             child: new IconButton(
                 icon: new Icon(Icons.send),
-                onPressed: () => _handleSubmitted(_textController.text)),
+                onPressed: () => _handleMessageSubmitted(_textController.text)),
           )
         ],
       ),
     );
   }
 
-  void _handleSubmitted(String value) {
+  void _handleMessageSubmitted(String text) {
     _textController.clear();
+    ChatMessage chatMessage = new ChatMessage(
+      messageText: text,
+    );
+    setState(() {
+      _messages.insert(0, chatMessage);
+    });
   }
 
   @override
@@ -37,7 +45,24 @@ class ChatScreenState extends State<ChatScreen> {
     // Implements the basic material design visual layout structure
     return new Scaffold(
         appBar: new AppBar(title: new Text("Friendly Chat")),
-        body: _buildTextComposer()
+        body: new Column(
+          children: <Widget>[
+            new Flexible(
+                child: new ListView.builder(
+                  padding: new EdgeInsets.all(8.0),
+                  reverse: true, // start from the bottom of the screen
+                  itemBuilder: (_, int index) => _messages[index], // a function that builds each widget, Naming the first argument (build context) _ (underscore) is a convention to indicate that it won't be used
+                  itemCount: _messages.length,
+                )
+            ),
+            new Divider(height: 1.0), // a horizontal rule
+            new Container( // as a parent of the text composer, which is useful for defining background images, padding, margins, and other common layout details
+              decoration: new BoxDecoration(color: Theme.of(context).cardColor), // different background from the messages list
+              child: _buildTextComposer(),
+            )
+          ],
+        )
+
       /*new GridView.count(
         primary: false,
         padding: const EdgeInsets.all(20.0),
