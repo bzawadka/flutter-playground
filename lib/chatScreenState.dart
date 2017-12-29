@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'chat.dart';
 import 'chatMessage.dart';
 
-class ChatScreenState extends State<ChatScreen> {
+class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   final List<ChatMessage> _messages = <ChatMessage>[];
   final TextEditingController _textController = new TextEditingController();
 
@@ -33,11 +33,24 @@ class ChatScreenState extends State<ChatScreen> {
   void _handleMessageSubmitted(String text) {
     _textController.clear();
     ChatMessage chatMessage = new ChatMessage(
-      messageText: text,
+        messageText: text,
+        animationController: new AnimationController(
+            duration: new Duration(milliseconds: 700),
+            vsync: this
+        )
     );
     setState(() {
       _messages.insert(0, chatMessage);
     });
+    chatMessage.animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    for (ChatMessage message in _messages) {
+      message.animationController.dispose();
+    }
+    super.dispose();
   }
 
   @override
