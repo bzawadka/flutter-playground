@@ -5,6 +5,7 @@ import 'chatMessage.dart';
 class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   final List<ChatMessage> _messages = <ChatMessage>[];
   final TextEditingController _textController = new TextEditingController();
+  bool _isComposing = false;
 
   Widget _buildTextComposer() {
     return new Container(
@@ -14,6 +15,11 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           new Flexible(
               child: new TextField(
                   controller: _textController,
+                  onChanged: (String text) {
+                    setState(() {
+                      _isComposing = text.length > 0;
+                    });
+                  },
                   onSubmitted: _handleMessageSubmitted,
                   decoration: new InputDecoration.collapsed(
                       hintText: "Send a message")
@@ -23,7 +29,10 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             margin: new EdgeInsets.symmetric(horizontal: 4.0),
             child: new IconButton(
                 icon: new Icon(Icons.send),
-                onPressed: () => _handleMessageSubmitted(_textController.text)),
+                onPressed: _isComposing
+                    ? () => _handleMessageSubmitted(_textController.text)
+                    : null,
+            ),
           )
         ],
       ),
@@ -32,10 +41,13 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
 
   void _handleMessageSubmitted(String text) {
     _textController.clear();
+    setState(() {
+      _isComposing = false;
+    });
     ChatMessage chatMessage = new ChatMessage(
         messageText: text,
         animationController: new AnimationController(
-            duration: new Duration(milliseconds: 100),
+            duration: new Duration(milliseconds: 200),
             vsync: this
         )
     );
