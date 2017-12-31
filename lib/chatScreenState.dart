@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';                      //new
 import 'chat.dart';
 import 'chatMessage.dart';
 
@@ -27,12 +28,15 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           ),
           new Container(
             margin: new EdgeInsets.symmetric(horizontal: 4.0),
-            child: new IconButton(
+            child: Theme.of(context).platform == TargetPlatform.iOS ?
+            new CupertinoButton(
+                child: new Text("Send"),
+                onPressed: _isComposing ?
+                  () => _handleMessageSubmitted(_textController.text) : null) :
+            new IconButton(
                 icon: new Icon(Icons.send),
-                onPressed: _isComposing
-                    ? () => _handleMessageSubmitted(_textController.text)
-                    : null,
-            ),
+                onPressed: _isComposing ?
+                  () => _handleMessageSubmitted(_textController.text) : null)
           )
         ],
       ),
@@ -69,23 +73,36 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     // Implements the basic material design visual layout structure
     return new Scaffold(
-        appBar: new AppBar(title: new Text("Friendly Chat")),
-        body: new Column(
-          children: <Widget>[
-            new Flexible(
-                child: new ListView.builder(
-                  padding: new EdgeInsets.all(8.0),
-                  reverse: true, // start from the bottom of the screen
-                  itemBuilder: (_, int index) => _messages[index], // a function that builds each widget, Naming the first argument (build context) _ (underscore) is a convention to indicate that it won't be used
-                  itemCount: _messages.length,
+        appBar: new AppBar(
+            title: new Text("Friendly Chat"),
+            elevation:
+                Theme.of(context).platform == TargetPlatform.iOS ? 0.0 : 4.0,
+        ),
+        body: new Container(
+          child: new Column(
+            children: <Widget>[
+              new Flexible(
+                  child: new ListView.builder(
+                    padding: new EdgeInsets.all(8.0),
+                    reverse: true, // start from the bottom of the screen
+                    itemBuilder: (_, int index) => _messages[index], // a function that builds each widget, Naming the first argument (build context) _ (underscore) is a convention to indicate that it won't be used
+                    itemCount: _messages.length,
+                  )
+              ),
+              new Divider(height: 1.0), // a horizontal rule
+              new Container( // as a parent of the text composer, which is useful for defining background images, padding, margins, and other common layout details
+                decoration: new BoxDecoration(color: Theme.of(context).cardColor), // different background from the messages list
+                child: _buildTextComposer(),
+              )
+            ],
+          ),
+          decoration: Theme.of(context).platform == TargetPlatform.iOS
+            ? new BoxDecoration(
+                border: new Border(
+                  top: new BorderSide(color: Colors.grey[200])
                 )
-            ),
-            new Divider(height: 1.0), // a horizontal rule
-            new Container( // as a parent of the text composer, which is useful for defining background images, padding, margins, and other common layout details
-              decoration: new BoxDecoration(color: Theme.of(context).cardColor), // different background from the messages list
-              child: _buildTextComposer(),
-            )
-          ],
+              )
+            : null,
         )
 
       /*new GridView.count(
